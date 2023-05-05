@@ -49,7 +49,7 @@ router.post(
 );
 
 router.get(`/oauth/google`, signupWithGoogle);
-router.get("/oauth/google/validate", validateSignupCallback);
+router.get("/auth/google/callback", validateSignupCallback);
 
 router.get("/logout", logout);
 

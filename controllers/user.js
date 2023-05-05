@@ -28,3 +28,14 @@ exports.getUserLinks = async (req, res) => {
     });
   }
 };
+
+exports.generateQR = async (req, res) => { 
+  try {
+    
+  }
+  catch (error) {
+    res.status(400).json({
+      error: "Failed to generate QR Code",
+    });
+  }
+}

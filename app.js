@@ -5,9 +5,14 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const path = require('path')
-
+const geoip = require('geoip-lite')
+const useragent = require('useragent')
+const requestIp = require("request-ip");
 const app = express()
+const device = require("express-device");
+app.use(device.capture());
 
+app.use(requestIp.mw());
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -23,6 +28,7 @@ mongoose.connect( process.env.MONGO_URI, {
 })
 
 //Routes
+
 app.use('/', require('./routes/auth'))
 app.use('/', require('./routes/url'))
 app.use('/', require('./routes/user'))

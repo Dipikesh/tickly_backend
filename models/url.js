@@ -13,7 +13,10 @@ const urlSchema = new mongoose.Schema(
         user: {
             type: ObjectId,
             ref: 'User'
-        }
+        },
+        analytics: [{
+            type: Object,
+        }]
     }
 )
 

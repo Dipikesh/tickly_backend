@@ -1,13 +1,18 @@
 const URL = require("../models/url");
 const User = require("../models/user");
-
+const QRCodeService = require("../services/qr.services");
 const validUrl = require("valid-url");
 const shortid = require("shortid");
+const customUrlService = require("../services/customUrl.services");
+const { getAnalytics } = require("../services/analytics.services");
 
 exports.shortenURL = async (req, res) => {
   console.log("user shorten URL");
-  const user = await User.findOne({ _id: req.params.userId });
 
+  let user = 0;
+  if (req.params && req.params.userId) {
+    user = await User.findOne({ _id: req.params.userId });
+  }
   const { originalUrl } = req.body;
   const baseUrl = process.env.baseURL;
 
@@ -17,11 +22,34 @@ exports.shortenURL = async (req, res) => {
     });
   }
 
-  const urlCode = shortid.generate();
+  let customUrl = 0;
+  if (req.body.customUrl)
+    customUrl = await customUrlService.genHalfCustom(req.body.customUrl);
+  if (customUrl === 3)
+    return res.status(400).json({
+      error: "Custom Url already exists",
+    });
+
+  let qrCode = 0;
+  if (req.body.qr === 1) {
+    let centerImage = req.body.centerImage;
+    let width = req.body.width;
+    let cwidth = req.body.cwidth;
+    qrCode = await QRCodeService.generateQR(
+      originalUrl,
+      req.body.color ? req.body.color : 0,
+      centerImage,
+      width,
+      cwidth
+    );
+  }
+
+  const urlCode = customUrl ? customUrl : shortid.generate();
 
   if (validUrl.isUri(originalUrl)) {
     try {
-      const shortUrl = baseUrl + "/" + urlCode;
+      let shortUrl;
+      shortUrl = baseUrl + "/" + urlCode;
 
       const url = new URL({
         originalUrl,
@@ -30,18 +58,15 @@ exports.shortenURL = async (req, res) => {
         date: new Date(),
       });
 
-        const data = await url.save();
-        console.log(data);
+      const data = await url.save();
+      console.log(data);
+      if (user) {
         user.links.push(data);
+        qrCode && user.qr.push(qrCode);
         await user.save();
-    //   const result = await user.findOneAndUpdate(
-    //     { _id: req.params.userId },
-    //     { $push: { links: data._id } },
-    //     { upsert: false }
-    //   );
-    //   console.log(result);
+      }
 
-      res.json(url);
+      res.json({ url, qrCode });
     } catch (err) {
       console.log(err);
       res.status(500).json({
@@ -64,7 +89,11 @@ exports.publicShortenURL = async (req, res) => {
       error: "Invalid base url",
     });
   }
-
+  let qrCode;
+  if (req.body.qr === 1) {
+    qrCode = await QRCodeService.generateQR(originalUrl);
+    console.log(qrCode);
+  }
   const urlCode = shortid.generate();
 
   if (validUrl.isUri(originalUrl)) {
@@ -103,8 +132,10 @@ exports.publicShortenURL = async (req, res) => {
 exports.redirectURL = async (req, res) => {
   try {
     const url = await URL.findOne({ urlCode: req.params.code });
-
+    
     if (url) {
+      const data = await getAnalytics(req);
+      // return res.send(data)
       return res.redirect(url.originalUrl);
     } else {
       return res.status(404).json({

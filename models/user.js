@@ -17,15 +17,24 @@ const userSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
+        singup_type: {
+            type: String,
+            default: 'tickly'
+        },
         encry_password: {
             type: String,
-            required: true
         },
         salt: String,
         links: [{
             type: ObjectId,
             ref: 'URL'
-        }]
+        }],
+        qr: [{
+            type: ObjectId,
+            ref:'qr'
+        }],
+        picture: String,
+
     },
     { timestamps: true }
 )
