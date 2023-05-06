@@ -16,7 +16,9 @@ const urlSchema = new mongoose.Schema(
         },
         analytics: [{
             type: Object,
-        }]
+        }],
+        qr:String
+        
     }
 )
 

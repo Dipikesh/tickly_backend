@@ -7,7 +7,7 @@ const {
   redirectURL,
 } = require("../controllers/url");
 const { isSignedIn, isAuthenticated } = require("../controllers/auth");
-const { getUserById } = require("../controllers/user");
+const { getUserById,getLinkDetails } = require("../controllers/user");
 
 router.param("userId", getUserById);
 
@@ -16,6 +16,8 @@ router.post("/url/shorten/:userId", isSignedIn, isAuthenticated, shortenURL);
 
 //public route
 router.post("/url/shorten", publicShortenURL);
+
+router.get("/url/:userId",isSignedIn,isAuthenticated,getLinkDetails)
 
 // redirect
 router.get("/:code", redirectURL);

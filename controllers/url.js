@@ -13,6 +13,7 @@ exports.shortenURL = async (req, res) => {
   if (req.params && req.params.userId) {
     user = await User.findOne({ _id: req.params.userId });
   }
+  console.log(req.body)
   const { originalUrl } = req.body;
   const baseUrl = process.env.baseURL;
 
@@ -43,7 +44,7 @@ exports.shortenURL = async (req, res) => {
       cwidth
     );
   }
-
+console.log({qrCode})
   const urlCode = customUrl ? customUrl : shortid.generate();
 
   if (validUrl.isUri(originalUrl)) {
@@ -56,13 +57,13 @@ exports.shortenURL = async (req, res) => {
         shortUrl,
         urlCode,
         date: new Date(),
+        qr:qrCode.image
       });
-
       const data = await url.save();
       console.log(data);
       if (user) {
         user.links.push(data);
-        qrCode && user.qr.push(qrCode);
+        // qrCode && user.qr.push(qrCode);
         await user.save();
       }
 
