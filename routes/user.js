@@ -11,4 +11,5 @@ router.get('/urls/:userId', isSignedIn, isAuthenticated, getUserLinks)
 
 router.get('/url-detail/:userId',isSignedIn, isAuthenticated, getLinkDetails);
 
+
 module.exports = router

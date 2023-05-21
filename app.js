@@ -21,7 +21,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 mongoose.connect( process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify:true
 })
 .then(() => {
     console.log(`Database connected successfully`)
@@ -32,6 +33,8 @@ mongoose.connect( process.env.MONGO_URI, {
 app.use('/', require('./routes/auth'))
 app.use('/', require('./routes/url'))
 app.use('/', require('./routes/user'))
+// app.use('/',require('./routes/'))
+// app.use('/', require('./routes/payment'))
 
 // Serve static assets
 if (process.env.NODE_ENV === 'production') {

@@ -101,7 +101,7 @@ exports.signupWithGoogle = async (req, res, next) => {
     const googleRedirectUrl =
       process.env.NODE_ENV === "production"
         ? `https://analytics-api.markopolo.ai/auth/google/callback`
-        : `http://localhost:5000/auth/google/callback`;
+        : `${process.env.baseURL}/auth/google/callback`;
     const options = {
       redirect_uri: googleRedirectUrl,
       client_id: process.env.CLIENT_ID,
@@ -156,20 +156,22 @@ exports.validateSignupCallback = async (req, res, next) => {
       
     // Check if user already exists
     const userData = await userService.createUser(userInfo);
-    console.log("data", data);
+    // console.log("data", data);
 
-     const token = jwt.sign({ _id: user.id }, process.env.SECRET);
+     const token = jwt.sign({ _id: userData.id }, process.env.SECRET);
 
     //cookie
     res.cookie("token", token, { expire: new Date() + 9999 });
 
+   
     //response to frontend
     const { _id, username, links } = userData;
-    return res.json({ token, user: { _id, username, email, links } });
+    // return res.json({ token, user: { _id, username, email, links } });
  
     // Return the user info
-    const url = process.env.NODE_ENV !== "production" ? `http://localhost:3000/dashboard` : '';
-    return res.redirect('http://localhost:3000/dashboard')
+    // const url = process.env.NODE_ENV !== "production" ? `http://localhost:3000/dashboard` : '';
+
+    return res.redirect(`http://localhost:3000/google-signup?token=${token}&_id=${_id}&username=${username}&email=${email}`)
 
   } catch (error) {
     console.log(error);

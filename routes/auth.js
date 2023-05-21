@@ -48,6 +48,13 @@ router.post(
   login
 );
 
+const {
+  createPayment
+} = require("../controllers/payment");
+
+
+router.get("/payment", createPayment);
+
 router.get(`/oauth/google`, signupWithGoogle);
 router.get("/auth/google/callback", validateSignupCallback);
 
